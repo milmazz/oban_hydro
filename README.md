@@ -1,6 +1,6 @@
 # Hydro
 
-Hydro include conveniences for developers that oversees Oban Workers
+Hydro includes conveniences for developers who oversee Oban Workers
 and want to find areas to improve.
 
 ## Installation
@@ -40,14 +40,14 @@ Options:
 
 ### Workers by unique state groups
 
-This command is useful to find Oban Workers by _Unique States Group_
+This command is helpful to find Oban Workers by _Unique States Group_
 (e.g., `:all`, `:incomplete`, `scheduled`, `:successful`), which were
 introduced with Oban [v2.20.0][]. So, you can update your Oban Worker definition
 to use the unique states group instead.
 
-This command also display cases that don't satisfy the _Unique States Group_,
+This command also displays cases that don't satisfy the _Unique States Group_,
 for example: `[:scheduled, :available, :executing]` can create unexpected
-race conditions because the missing `:retryable` state.
+race conditions because of the missing `:retryable` state.
 
 ```console
 hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
@@ -67,8 +67,8 @@ hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
 ### Unique Workers without keys option
 
 As stated in the [Scaling Applications][] guide, _after_ verifying that you
-actually require the _unique_ feature, you always have to specify the
-`keys` option, this is mainly to avoid using the whole `args` or `meta`.
+require the _unique_ feature, you always have to specify the
+`keys` option, which is mainly employed to avoid using the whole `args` or `meta`.
 
 ```console
 hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
@@ -78,10 +78,10 @@ MyApp.Webhooks.WebhookPruner
 
 ### Unique Workers with custom period
 
-In the same vein as the previous command, once you have verified you actually require
-the _unique_ feature, the [Scaling Applications] guide recommends to replace custom
-periods of time with the value `:infinity`, this command helps you finding those
-offending Oban Worker definitions and groups them by their period value:
+In the same vein as the previous command, once you have verified that you require
+the _unique_ feature, the [Scaling Applications] guide recommends replacing custom
+periods with the value `:infinity`, this command helps you find those
+offending Oban Worker definitions and grouping them by their period value:
 
 ```console
 hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
@@ -119,7 +119,7 @@ my_job_args
 |> Oban.insert()
 ```
 
-In multiple places, so, I usually prefer to create small function wrappers in the
+In multiple places, so I usually prefer to create small function wrappers in the
 Worker module like:
 
 ```elixir
@@ -137,7 +137,7 @@ end
 Remember that your enqueue function doesn't need to have an arity of one; adjust
 the number of arguments depending on what your worker expects.
 
-With this command you can track which worker haven't implemented one or more wrappers.
+With this command, you can track which workers haven't implemented one or more wrappers.
 
 ```console
 hydro workers_without_wrappers _build/dev/lib/my_app/ebin

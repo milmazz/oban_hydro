@@ -2,15 +2,15 @@ defmodule Hydro do
   @moduledoc """
   Helpers to administrate or oversee Oban Workers
 
-  Or in other words, a series of functions to help you find
-  worrisome Oban configuration that might need a visit to
+  Or, in other words, a series of functions to help you find
+  worrisome Oban configurations that might need a visit to
   the Oban Hydro Sanatorium.
 
   https://en.wikipedia.org/wiki/Oban_Hydro
   """
 
   @doc """
-  Find Oban Workers associated in the given queues
+  Find Oban Workers associated with the given queues
   """
   def workers_by_queues(queue, app) when is_binary(queue) or is_atom(queue) do
     queue
@@ -38,9 +38,9 @@ defmodule Hydro do
   Find Oban Workers with _custom period_ in their `unique` option
 
   The `unique` option is not always needed. So, I tend to review
-  these worker definitions to see why are we using a custom period,
+  these worker definitions to see why we are using a custom period,
   when the recommended value, after checking that the unique
-  feature is actually needed, for `period` is `:infinity`.
+  feature is required, for `period` is `:infinity`.
 
   See: https://hexdocs.pm/oban/scaling.html#uniqueness
   """
@@ -63,9 +63,9 @@ defmodule Hydro do
   Find unique workers without the `keys` option
 
   As suggested in the Scaling Application guide, first make
-  sure you actually need the unique jobs feature, and if you do,
+  sure you require the unique jobs feature, and if you do,
   always set the `keys` option so that uniqueness isn't based on
-  the full `args` or `meta`
+  the complete `args` or `meta`
 
   See: https://hexdocs.pm/oban/scaling.html#uniqueness
   """
@@ -81,12 +81,13 @@ defmodule Hydro do
   @doc """
   Classify workers based on "Unique State Groups"
 
-  This State Groups are available since Oban v2.20.0
+  These Unique State Groups are available since Oban v2.20.0.
+
   See: https://github.com/oban-bg/oban/releases/tag/v2.20.0
 
-  If one or more workers don't fall in the following unique groups:
-  `all`, `incomplete`, `scheduled`, or `successful`, you should do a
-  deep review in your worker module definition. 
+  If one or more workers don't fall into the following unique groups:
+  `all`, `incomplete`, `scheduled`, or `successful`, you should deeply
+  review of your worker module definition. 
   """
   def workers_by_unique_state_groups(app) do
     all = MapSet.new(~w(available scheduled executing retryable completed cancelled discarded)a)
