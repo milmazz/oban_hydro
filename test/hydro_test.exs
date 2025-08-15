@@ -2,26 +2,26 @@ defmodule HydroTest do
   use ExUnit.Case
   doctest Hydro
 
-  @app Hydro.MixProject.project()[:app]
+  @source_beam "_build/test/lib/hydro/ebin"
 
   alias Hydro.EmailDeliver
 
   test "group workers by the given queues" do
     assert %{"email_delivery" => [EmailDeliver]} ==
-             Hydro.workers_by_queues(:email_delivery, @app)
+             Hydro.workers_by_queues(:email_delivery, @source_beam)
   end
 
   test "find and group workers by custom unique periods" do
-    assert %{60 => [EmailDeliver]} == Hydro.unique_workers_with_custom_period(@app)
+    assert %{60 => [EmailDeliver]} == Hydro.unique_workers_with_custom_period(@source_beam)
   end
 
   test "find unique workers without the `keys` option" do
-    assert [EmailDeliver] == Hydro.unique_workers_without_keys_option(@app)
+    assert [EmailDeliver] == Hydro.unique_workers_without_keys_option(@source_beam)
   end
 
   test "find and group workers by unique group states" do
     assert [{states, [EmailDeliver]}] =
-             @app
+             @source_beam
              |> Hydro.workers_by_unique_state_groups()
              |> Map.to_list()
 
@@ -30,7 +30,12 @@ defmodule HydroTest do
   end
 
   test "find workers without an enqueue wrapper function" do
-    assert [EmailDeliver] == Hydro.workers_without_wrappers(@app)
-    assert [EmailDeliver] == Hydro.workers_without_wrappers(@app, prefixes: ["schedule"])
+    assert %{["enqueue"] => [EmailDeliver]} == Hydro.workers_without_wrappers(@source_beam)
+
+    assert %{["schedule"] => [EmailDeliver]} ==
+             Hydro.workers_without_wrappers(@source_beam, names: ["schedule"])
+
+    assert %{["enqueue", "prepare"] => [EmailDeliver]} ==
+             Hydro.workers_without_wrappers(@source_beam, names: ["enqueue", "prepare"])
   end
 end

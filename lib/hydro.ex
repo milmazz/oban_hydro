@@ -23,7 +23,14 @@ defmodule Hydro do
 
     app
     |> find_oban_workers()
-    |> Enum.group_by(&(&1.__opts__() |> Keyword.get(:queue, :default) |> to_string()))
+    |> Enum.group_by(
+      fn {worker, _attributes} ->
+        worker.__opts__()
+        |> Keyword.get(:queue, :default)
+        |> to_string()
+      end,
+      &elem(&1, 0)
+    )
     |> Map.filter(fn {queue, _} -> queue in target_queues end)
   end
 
@@ -40,7 +47,7 @@ defmodule Hydro do
   def unique_workers_with_custom_period(app) do
     app
     |> find_oban_workers()
-    |> Enum.flat_map(fn worker ->
+    |> Enum.flat_map(fn {worker, _attributes} ->
       unique = Keyword.get(worker.__opts__(), :unique)
 
       case unique && unique[:period] do
@@ -65,9 +72,9 @@ defmodule Hydro do
   def unique_workers_without_keys_option(app) do
     app
     |> find_oban_workers()
-    |> Enum.filter(fn worker ->
+    |> Enum.flat_map(fn {worker, _attributes} ->
       unique = Keyword.get(worker.__opts__(), :unique)
-      unique && unique[:keys] != []
+      if unique && unique[:keys] != [], do: [worker], else: []
     end)
   end
 
@@ -89,7 +96,7 @@ defmodule Hydro do
 
     app
     |> find_oban_workers()
-    |> Enum.flat_map(fn worker ->
+    |> Enum.flat_map(fn {worker, _attributes} ->
       unique = Keyword.get(worker.__opts__(), :unique)
 
       case unique && unique[:states] do
@@ -119,37 +126,68 @@ defmodule Hydro do
 
   ## Options
 
-  * `prefixes` - specifies the name of the wrapper prefixes. Default: `["enqueue"]`
+  * `names` - specifies the name of the wrappers. Default: `["enqueue"]`
   """
   def workers_without_wrappers(app, opts \\ []) do
     wrapper_names =
       opts
-      |> Keyword.get(:prefixes, "enqueue")
+      |> Keyword.get(:names, "enqueue")
       |> List.wrap()
+      |> MapSet.new()
 
     app
     |> find_oban_workers()
-    |> Enum.reject(fn worker ->
-      :functions
-      |> worker.__info__()
-      |> Enum.find(fn {fun, _arity} ->
-        fun |> Atom.to_string() |> String.starts_with?(wrapper_names)
-      end)
+    |> Enum.flat_map(fn {worker, attributes} ->
+      function_names =
+        attributes
+        |> Keyword.fetch!(:functions)
+        |> MapSet.new(&(&1 |> elem(0) |> Atom.to_string()))
+
+      intersection = MapSet.intersection(wrapper_names, function_names)
+
+      if MapSet.equal?(intersection, wrapper_names) do
+        []
+      else
+        non_implemented =
+          wrapper_names
+          |> MapSet.difference(intersection)
+          |> MapSet.to_list()
+
+        [{worker, non_implemented}]
+      end
     end)
+    |> Enum.group_by(&elem(&1, 1), &elem(&1, 0))
   end
 
   @doc """
-  List all the Oban Workers for the given application
+  List all the Oban Workers for the given BEAM directory
   """
-  def find_oban_workers(app) do
-    app
-    |> Application.spec(:modules)
-    |> Enum.filter(fn module ->
-      if match?({:module, _}, Code.ensure_loaded(module)) do
-        behaviors =
-          :attributes |> module.__info__() |> Keyword.get_values(:behaviour) |> List.flatten()
+  def find_oban_workers(dir) do
+    ["_build", mix_env | _] = Path.split(dir)
 
-        behaviors != [] and Oban.Worker in behaviors
+    [
+      dir,
+      "_build/#{mix_env}/lib/oban_pro/ebin",
+      "_build/#{mix_env}/lib/oban/ebin"
+    ]
+    |> Enum.filter(&File.exists?/1)
+    |> Code.prepend_paths()
+
+    "*.beam"
+    |> Path.expand(dir)
+    |> Path.wildcard()
+    |> Enum.map(&(&1 |> Path.basename(".beam") |> String.to_atom()))
+    |> Enum.flat_map(fn module ->
+      with {^module, binary, _file} <- :code.get_object_code(module),
+           {:ok, {^module, chunk_data}} <- :beam_lib.chunks(binary, [:attributes, :exports]),
+           true <-
+             chunk_data
+             |> get_in([:attributes, :behaviour])
+             |> List.wrap()
+             |> Enum.any?(&(&1 == Oban.Worker)) do
+        [{module, functions: Keyword.fetch!(chunk_data, :exports)}]
+      else
+        _ -> []
       end
     end)
   end

@@ -21,3 +21,6 @@ hydro-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Ignore escript when built
+/hydro

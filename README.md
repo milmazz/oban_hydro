@@ -14,20 +14,20 @@ mix escript.install github milmazz/hydro
 ```console
 hydro --help
 Usage:
-  hydro command app [OPTIONS]
+  hydro COMMAND BEAMS [OPTIONS]
 
 Examples:
-  hydro workers_by_queues app -q email --queue default
-  hydro workers_without_wrappers app -p enqueue --prefix prepare
-  hydro unique_workers_with_custom_period app
-  hydro unique_workers_without_keys_option app
-  hydro workers_by_unique_state_groups app
+  hydro workers_by_queues _build/dev/lib/my_app/ebin -q email --queue default
+  hydro workers_without_wrappers _build/dev/lib/my_app/ebin -n enqueue --name prepare
+  hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
+  hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
+  hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
 
 Options:
   -v, --version Prints the Hydro version.
   -h, --help    Print this usage.
   -q, --queue   Specifies one or multiple Oban queues
-  -p, --prefix  Indicates one or multiple Oban wrapper prefixes
+  -n, --name    Indicates one or multiple Oban wrapper names
 ```
 
 ## Commands
@@ -40,41 +40,70 @@ Options:
 
 ### Workers by unique state groups
 
-This command is useful to find Oban Workers`` by _Unique States Group_
+This command is useful to find Oban Workers by _Unique States Group_
 (e.g., `:all`, `:incomplete`, `scheduled`, `:successful`), which were
 introduced with Oban [v2.20.0][]. So, you can update your Oban Worker definition
-to use the group instead.
+to use the unique states group instead.
 
 This command also display cases that don't satisfy the _Unique States Group_,
 for example: `[:scheduled, :available, :executing]` can create unexpected
 race conditions because the missing `:retryable` state.
 
-EXAMPLE
+```console
+hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
+:all:
+    MyApp.Notifications.CreateNoticationsWorker
+    ...
+:incomplete:
+    MyApp.Search.IndexWorker
+    ...
+:successful:
+    MyApp.Workers.Basic
+[:available, :scheduled, :executing]:
+    MyApp.ReviewThisWorker
+    ...
+```
 
 ### Unique Workers without keys option
 
 As stated in the [Scaling Applications][] guide, _after_ verifying that you
 actually require the _unique_ feature, you always have to specify the
-`keys` option under the `unique`, this is mainly to avoid using the
-whole `args` or `meta`.
+`keys` option, this is mainly to avoid using the whole `args` or `meta`.
 
-EXAMPLE
+```console
+hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
+MyApp.ExportWorker
+MyApp.Webhooks.WebhookPruner
+```
 
 ### Unique Workers with custom period
 
 In the same vein as the previous command, once you have verified you actually require
 the _unique_ feature, the [Scaling Applications] guide recommends to replace custom
-periods of time with the value `:infinity`, this commands help you finding those
+periods of time with the value `:infinity`, this command helps you finding those
 offending Oban Worker definitions and groups them by their period value:
 
-EXAMPLE
+```console
+hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
+60:
+    MyApp.MailerWorker
+    MyApp.Workers.Basic
+86400:
+    MyApp.DailyWorker
+```
 
 ### Workers by queues
 
 If you need to filter Oban Workers by one or more queues, this command will do the
 work for you.
 
-EXAMPLE
+```console
+hydro workers_by_queues _build/dev/lib/my_app/ebin -q mailers --queue default 
+"mailers":
+    MyApp.MailerWorker
+"default":
+    MyApp.Workers.Basic
+```
 
 ### Workers without wrappers
 
@@ -110,7 +139,12 @@ the number of arguments depending on what your worker expects.
 
 With this command you can track which worker haven't implemented one or more wrappers.
 
-EXAMPLE
+```console
+hydro workers_without_wrappers _build/dev/lib/my_app/ebin
+["enqueue"]:
+    MyApp.Workers.Basic
+    MyApp.MailerWorker
+```
 
 [Scaling Applications]: https://hexdocs.pm/oban/scaling.html#uniqueness
 [v2.20.0]: https://github.com/oban-bg/oban/releases/tag/v2.20.0
