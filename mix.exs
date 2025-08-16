@@ -1,16 +1,25 @@
-defmodule Hydro.MixProject do
+defmodule ObanHydro.MixProject do
   use Mix.Project
+
+  @source_url "https://github.com/milmazz/oban_hydro"
+  @version "0.1.0"
 
   def project do
     [
-      app: :hydro,
-      version: "0.1.0",
+      app: :oban_hydro,
+      version: @version,
+      name: "Oban Hydro",
+      source_url: @source_url,
+      homepage_url: @source_url,
+      description: description(),
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       elixirc_options: [warnings_as_errors: true],
-      escript: escript()
+      escript: escript(),
+      docs: docs(),
+      package: package()
     ]
   end
 
@@ -19,7 +28,7 @@ defmodule Hydro.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   def escript do
-    [main_module: Hydro.CLI]
+    [main_module: ObanHydro.CLI]
   end
 
   # Run "mix help compile.app" to learn about applications.
@@ -32,7 +41,33 @@ defmodule Hydro.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:oban, ">= 0.0.0", only: [:test]}
+      {:ex_doc, "~> 0.38", only: :dev, runtime: false, warn_if_outdated: true},
+      {:oban, "~> 2.20", only: [:test]}
     ]
   end
+
+  defp description,
+    do: """
+    Admin scripts to keep your Oban Workers sane
+    """
+
+  defp docs,
+    do: [
+      extras: [
+        "CHANGELOG.md": [],
+        LICENSE: [title: "License"],
+        "README.md": [title: "Overview"]
+      ],
+      main: "readme"
+    ]
+
+  defp package,
+    do: [
+      links: %{
+        "Changelog" => "https://hexdocs.pm/oban_hydro/changelog.html",
+        "GitHub" => @source_url
+      },
+      maintainers: ["Milton Mazzarri"],
+      licenses: ["Apache-2.0"]
+    ]
 end

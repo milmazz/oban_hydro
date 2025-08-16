@@ -1,4 +1,4 @@
-defmodule Hydro.EmailDeliver do
+defmodule ObanHydro.EmailDeliver do
   @moduledoc """
   Dummy Worker
 

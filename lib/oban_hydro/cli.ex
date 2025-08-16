@@ -1,8 +1,6 @@
-defmodule Hydro.CLI do
-  @moduledoc """
-  CLI interface for Hydro
-  """
-  @version Hydro.MixProject.project()[:version]
+defmodule ObanHydro.CLI do
+  @moduledoc false
+  @version ObanHydro.MixProject.project()[:version]
 
   @aliases [
     h: :help,
@@ -26,6 +24,9 @@ defmodule Hydro.CLI do
   workers_without_wrappers
   |
 
+  @doc """
+  Handles the escript command line parsing
+  """
   def main(args) do
     {opts, args, _invalid} = OptionParser.parse(args, aliases: @aliases, strict: @switches)
 
@@ -54,26 +55,26 @@ defmodule Hydro.CLI do
       print_usage()
     else
       queues
-      |> Hydro.workers_by_queues(app)
+      |> ObanHydro.workers_by_queues(app)
       |> print_grouped_workers()
     end
   end
 
   defp process(:unique_workers_with_custom_period, app, []) do
     app
-    |> Hydro.unique_workers_with_custom_period()
+    |> ObanHydro.unique_workers_with_custom_period()
     |> print_grouped_workers()
   end
 
   defp process(:unique_workers_without_keys_option, app, []) do
     app
-    |> Hydro.unique_workers_without_keys_option()
+    |> ObanHydro.unique_workers_without_keys_option()
     |> Enum.map(&(&1 |> inspect() |> IO.puts()))
   end
 
   defp process(:workers_by_unique_state_groups, app, []) do
     app
-    |> Hydro.workers_by_unique_state_groups()
+    |> ObanHydro.workers_by_unique_state_groups()
     |> print_grouped_workers()
   end
 
@@ -82,7 +83,7 @@ defmodule Hydro.CLI do
     wrapper_names = (names == [] && ["enqueue"]) || names
 
     app
-    |> Hydro.workers_without_wrappers(names: wrapper_names)
+    |> ObanHydro.workers_without_wrappers(names: wrapper_names)
     |> print_grouped_workers()
   end
 
@@ -93,22 +94,22 @@ defmodule Hydro.CLI do
     print_usage()
   end
 
-  defp print_version, do: IO.puts("Hydro v#{@version}")
+  defp print_version, do: IO.puts("ObanHydro v#{@version}")
 
   defp print_usage do
     IO.puts("""
     Usage:
-      hydro COMMAND BEAMS [OPTIONS]
+      oban_hydro COMMAND BEAMS [OPTIONS]
 
     Examples:
-      hydro workers_by_queues _build/dev/lib/my_app/ebin -q email --queue default
-      hydro workers_without_wrappers _build/dev/lib/my_app/ebin -n enqueue --name prepare
-      hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
-      hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
-      hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
+      oban_hydro workers_by_queues _build/dev/lib/my_app/ebin -q email --queue default
+      oban_hydro workers_without_wrappers _build/dev/lib/my_app/ebin -n enqueue --name prepare
+      oban_hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
+      oban_hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
+      oban_hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
 
     Options:
-      -v, --version Prints the Hydro version.
+      -v, --version Prints the ObanHydro version.
       -h, --help    Print this usage.
       -q, --queue   Specifies one or multiple Oban queues
       -n, --name    Indicates one or multiple Oban wrapper names

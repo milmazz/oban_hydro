@@ -1,30 +1,30 @@
-# Hydro
+# Oban Hydro
 
-Hydro includes conveniences for developers who oversee Oban Workers
+Oban Hydro includes conveniences for developers who oversee Oban Workers
 and want to find areas to improve.
 
 ## Installation
 
 ```console
-mix escript.install github milmazz/hydro
+mix escript.install hex oban_hydro
 ```
 
 ## Usage
 
 ```console
-hydro --help
+$ oban_hydro --help
 Usage:
-  hydro COMMAND BEAMS [OPTIONS]
+  oban_hydro COMMAND BEAMS [OPTIONS]
 
 Examples:
-  hydro workers_by_queues _build/dev/lib/my_app/ebin -q email --queue default
-  hydro workers_without_wrappers _build/dev/lib/my_app/ebin -n enqueue --name prepare
-  hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
-  hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
-  hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
+  oban_hydro workers_by_queues _build/dev/lib/my_app/ebin -q email --queue default
+  oban_hydro workers_without_wrappers _build/dev/lib/my_app/ebin -n enqueue --name prepare
+  oban_hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
+  oban_hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
+  oban_hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
 
 Options:
-  -v, --version Prints the Hydro version.
+  -v, --version Prints the ObanHydro version.
   -h, --help    Print this usage.
   -q, --queue   Specifies one or multiple Oban queues
   -n, --name    Indicates one or multiple Oban wrapper names
@@ -50,7 +50,7 @@ for example: `[:scheduled, :available, :executing]` can create unexpected
 race conditions because of the missing `:retryable` state.
 
 ```console
-hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
+$ oban_hydro workers_by_unique_state_groups _build/dev/lib/my_app/ebin
 :all:
     MyApp.Notifications.CreateNoticationsWorker
     ...
@@ -71,7 +71,7 @@ require the _unique_ feature, you always have to specify the
 `keys` option, which is mainly employed to avoid using the whole `args` or `meta`.
 
 ```console
-hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
+$ oban_hydro unique_workers_without_keys_option _build/dev/lib/my_app/ebin
 MyApp.ExportWorker
 MyApp.Webhooks.WebhookPruner
 ```
@@ -84,7 +84,7 @@ periods with the value `:infinity`, this command helps you find those
 offending Oban Worker definitions and grouping them by their period value:
 
 ```console
-hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
+$ oban_hydro unique_workers_with_custom_period _build/dev/lib/my_app/ebin
 60:
     MyApp.MailerWorker
     MyApp.Workers.Basic
@@ -98,7 +98,7 @@ If you need to filter Oban Workers by one or more queues, this command will do t
 work for you.
 
 ```console
-hydro workers_by_queues _build/dev/lib/my_app/ebin -q mailers --queue default 
+$ oban_hydro workers_by_queues _build/dev/lib/my_app/ebin -q mailers --queue default 
 "mailers":
     MyApp.MailerWorker
 "default":
@@ -119,7 +119,7 @@ my_job_args
 |> Oban.insert()
 ```
 
-In multiple places, so I usually prefer to create small function wrappers in the
+So I usually prefer to create small function wrappers in the
 Worker module like:
 
 ```elixir
@@ -140,7 +140,7 @@ the number of arguments depending on what your worker expects.
 With this command, you can track which workers haven't implemented one or more wrappers.
 
 ```console
-hydro workers_without_wrappers _build/dev/lib/my_app/ebin
+$ oban_hydro workers_without_wrappers _build/dev/lib/my_app/ebin
 ["enqueue"]:
     MyApp.Workers.Basic
     MyApp.MailerWorker

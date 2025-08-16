@@ -1,12 +1,12 @@
-defmodule Hydro do
+defmodule ObanHydro do
   @moduledoc """
   Helpers to administrate or oversee Oban Workers
 
   Or, in other words, a series of functions to help you find
   worrisome Oban configurations that might need a visit to
-  the Oban Hydro Sanatorium.
+  the [Oban Hydro Sanatorium].
 
-  https://en.wikipedia.org/wiki/Oban_Hydro
+  [Oban Hydro Sanatorium]: https://en.wikipedia.org/wiki/Oban_Hydro
   """
 
   @doc """
@@ -39,10 +39,10 @@ defmodule Hydro do
 
   The `unique` option is not always needed. So, I tend to review
   these worker definitions to see why we are using a custom period,
-  when the recommended value, after checking that the unique
+  when the [recommended value][Scaling Applications], after checking that the unique
   feature is required, for `period` is `:infinity`.
 
-  See: https://hexdocs.pm/oban/scaling.html#uniqueness
+  [Scaling Applications]: https://hexdocs.pm/oban/scaling.html#uniqueness
   """
   def unique_workers_with_custom_period(app) do
     app
@@ -62,12 +62,12 @@ defmodule Hydro do
   @doc """
   Find unique workers without the `keys` option
 
-  As suggested in the Scaling Application guide, first make
+  As suggested in the [Scaling Applications] guide, first make
   sure you require the unique jobs feature, and if you do,
   always set the `keys` option so that uniqueness isn't based on
   the complete `args` or `meta`
 
-  See: https://hexdocs.pm/oban/scaling.html#uniqueness
+  [Scaling Applications]: https://hexdocs.pm/oban/scaling.html#uniqueness
   """
   def unique_workers_without_keys_option(app) do
     app
@@ -81,13 +81,13 @@ defmodule Hydro do
   @doc """
   Classify workers based on "Unique State Groups"
 
-  These Unique State Groups are available since Oban v2.20.0.
-
-  See: https://github.com/oban-bg/oban/releases/tag/v2.20.0
+  These Unique State Groups are available since Oban [v2.20.0].
 
   If one or more workers don't fall into the following unique groups:
   `all`, `incomplete`, `scheduled`, or `successful`, you should deeply
   review of your worker module definition. 
+
+  [v2.20.0]: https://github.com/oban-bg/oban/releases/tag/v2.20.0
   """
   def workers_by_unique_state_groups(app) do
     all = MapSet.new(~w(available scheduled executing retryable completed cancelled discarded)a)
