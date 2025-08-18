@@ -23,4 +23,4 @@ hydro-*.tar
 /tmp/
 
 # Ignore escript when built
-/hydro
+/oban_hydro
