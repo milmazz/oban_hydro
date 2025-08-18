@@ -1,6 +1,6 @@
 # Oban Hydro
 
-Oban Hydro includes conveniences for developers who oversee Oban Workers
+Oban Hydro includes conveniences for developers who oversee [Oban] and [Oban.Pro] Workers
 and want to find areas to improve.
 
 ## Installation
@@ -146,6 +146,8 @@ $ oban_hydro workers_without_wrappers _build/dev/lib/my_app/ebin
     MyApp.MailerWorker
 ```
 
+[Oban]: https://hexdocs.pm/oban
+[Oban.Pro]: https://oban.pro/
 [Scaling Applications]: https://hexdocs.pm/oban/scaling.html#uniqueness
 [v2.20.0]: https://github.com/oban-bg/oban/releases/tag/v2.20.0
 [Oban: job processing library for Elixir]: https://milmazz.uno/article/2022/02/11/oban-job-processing-package-for-elixir/
