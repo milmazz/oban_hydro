@@ -163,19 +163,18 @@ defmodule ObanHydro do
   @doc """
   List all the Oban Workers for the given BEAM directory
   """
-  def find_oban_workers(dir) do
-    ["_build", mix_env | _] = Path.split(dir)
-
+  def find_oban_workers(beam_dir) do
     [
-      dir,
-      "_build/#{mix_env}/lib/oban_pro/ebin",
-      "_build/#{mix_env}/lib/oban/ebin"
+      beam_dir,
+      Path.join(beam_dir, "../../oban/ebin"),
+      Path.join(beam_dir, "../../oban_pro/ebin")
     ]
+    |> Enum.map(&Path.expand/1)
     |> Enum.filter(&File.exists?/1)
     |> Code.prepend_paths()
 
     "*.beam"
-    |> Path.expand(dir)
+    |> Path.expand(beam_dir)
     |> Path.wildcard()
     |> Enum.map(&(&1 |> Path.basename(".beam") |> String.to_atom()))
     |> Enum.flat_map(fn module ->
