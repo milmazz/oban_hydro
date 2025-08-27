@@ -44,11 +44,11 @@ defmodule ObanHydro.CLITest do
   test "prints version" do
     assert capture_io(fn ->
              CLI.main(~w|--version|)
-           end) == ~s|ObanHydro v0.1.0\n|
+           end) == ~s|ObanHydro v0.1.1-dev\n|
 
     assert capture_io(fn ->
              CLI.main(~w|-v|)
-           end) == ~s|ObanHydro v0.1.0\n|
+           end) == ~s|ObanHydro v0.1.1-dev\n|
   end
 
   test "prints help" do

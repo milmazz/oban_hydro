@@ -1,6 +1,6 @@
 defmodule ObanHydro.CLI do
   @moduledoc false
-  @version ObanHydro.MixProject.project()[:version]
+  @version Mix.Project.config()[:version]
 
   @aliases [
     h: :help,
