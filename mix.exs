@@ -2,7 +2,7 @@ defmodule ObanHydro.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/milmazz/oban_hydro"
-  @version "0.1.0"
+  @version "0.1.1-dev"
 
   def project do
     [
